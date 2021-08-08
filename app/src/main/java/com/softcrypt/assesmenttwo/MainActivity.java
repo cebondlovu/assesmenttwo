@@ -13,7 +13,7 @@ import java.security.MessageDigest;
 public class MainActivity extends AppCompatActivity {
 
     TextView binaryTxtView, hexaTxtView, oddEvenTxtView;
-    TextView binaryShaTxtView, hexaShaTxtView, oddEvenShaTxtView;
+    TextView binaryShaTxtView, hexaShaTxtView, oddEvenShaTxtView,errorTxtView;
     Button toBinaryBtn, toOddEvenBtn, toHexaBtn;
     EditText stringValue;
     String oddEven;
@@ -34,6 +34,8 @@ public class MainActivity extends AppCompatActivity {
         oddEvenShaTxtView = findViewById(R.id.textViewOddEvenSha);
         toOddEvenBtn = findViewById(R.id.buttonOddEven);
 
+        errorTxtView = findViewById(R.id.textViewError);
+
         stringValue = findViewById(R.id.editTextTextPersonName);
 
 
@@ -47,54 +49,67 @@ public class MainActivity extends AppCompatActivity {
         toBinaryBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                convertToBinary(oddEven);
+                if(oddEven != null)
+                    convertToBinary(oddEven);
+                else
+                    errorTxtView.setText("Please Input Name and Last name");
             }
         });
 
         toHexaBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                convertToHex(oddEven);
+                if(oddEven != null)
+                    convertToHex(oddEven);
+                else
+                    errorTxtView.setText("Please Input Name and Last name");
             }
         });
 
     }
 
     void getOddAndEven(String value) {
-        int firstSpacePosition = value.indexOf(" ");
-        String firstName = value.substring(0, firstSpacePosition);
-        String lastName = value.substring(value.lastIndexOf(" ")+1);
+        if(value.length() != 0) {
+            int firstSpacePosition = value.indexOf(" ");
+            if(firstSpacePosition != -1) {
+                String firstName = value.substring(0, firstSpacePosition);
+                String lastName = value.substring(value.lastIndexOf(" ") + 1);
 
-        char[] wordO = firstName.toCharArray();
-        StringBuilder strO = new StringBuilder("");
-        for (int i =0; i < wordO.length; i++){
-            if (i%2 == 0){
-                strO.append(wordO[i]);
+                char[] wordO = firstName.toCharArray();
+                StringBuilder strO = new StringBuilder("");
+                for (int i = 0; i < wordO.length; i++) {
+                    if (i % 2 == 0) {
+                        strO.append(wordO[i]);
+                    }
+                }
+
+                char[] wordE = lastName.toCharArray();
+                StringBuilder strE = new StringBuilder("");
+                for (int i = 0; i < wordE.length; i++) {
+                    if (i % 2 != 0) {
+                        strE.append(wordE[i]);
+                    }
+
+                }
+
+                oddEvenTxtView.setText(strO + " " + strE);
+                oddEven = strO + " " + strE;
+                oddEvenShaTxtView.setText(convertToSha256(oddEven));
+            } else {
+                errorTxtView.setText("Last name required");
             }
+        } else {
+            errorTxtView.setText("Please Input Name and Last name");
         }
-
-        char[] wordE = lastName.toCharArray();
-        StringBuilder strE = new StringBuilder("");
-        for(int i = 0; i < wordE.length; i++){
-            if(i%2!=0){
-                strE.append(wordE[i]);
-            }
-
-        }
-
-        oddEvenTxtView.setText(strO+" "+strE);
-        oddEven = strO+" "+strE;
-        oddEvenShaTxtView.setText(convertToSha256(oddEven));
     }
 
-    void convertToBinary(String value){
+    void convertToBinary(String value) {
+
         byte[] bytes = value.getBytes();
         StringBuilder binary = new StringBuilder();
-        for (byte b : bytes)
-        {
+        for (byte b : bytes) {
             int val = b;
-            for (int i = 0; i < 8; i++)
-            {
+            for (int i = 0; i < 8; i++) {
                 binary.append((val & 128) == 0 ? 0 : 1);
                 val <<= 1;
             }
@@ -125,7 +140,7 @@ public class MainActivity extends AppCompatActivity {
     void convertToHex(String value) {
         StringBuffer sb = new StringBuffer();
         char ch[] = value.toCharArray();
-        for(int i = 0; i < ch.length; i++){
+        for (int i = 0; i < ch.length; i++) {
             String hexString = Integer.toHexString(ch[i]);
             sb.append(hexString);
         }
